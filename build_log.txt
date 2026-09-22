@@ -1,0 +1,36 @@
+
+Running Gradle task 'assembleRelease'...                        
+Checking the license for package Android SDK Build-Tools 33.0.1 in /usr/local/lib/android/sdk/licenses
+License for package Android SDK Build-Tools 33.0.1 accepted.
+Preparing "Install Android SDK Build-Tools 33.0.1 v.33.0.1".
+"Install Android SDK Build-Tools 33.0.1 v.33.0.1" ready.
+Installing Android SDK Build-Tools 33.0.1 in /usr/local/lib/android/sdk/build-tools/33.0.1
+"Install Android SDK Build-Tools 33.0.1 v.33.0.1" complete.
+"Install Android SDK Build-Tools 33.0.1 v.33.0.1" finished.
+Font asset "MaterialIcons-Regular.otf" was tree-shaken, reducing it from 1645184 to 10508 bytes (99.4% reduction). Tree-shaking can be disabled by providing the --no-tree-shake-icons flag when building your app.
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+/home/runner/work/Routesense/Routesense/android/app/src/main/AndroidManifest.xml Error:
+	uses-sdk:minSdkVersion 21 cannot be smaller than version 23 declared in library [com.google.firebase:firebase-auth:23.2.1] /home/runner/.gradle/caches/transforms-3/c88774b793b291c03076cbd33f2138e7/transformed/jetified-firebase-auth-23.2.1/AndroidManifest.xml as the library might be using APIs not available in 21
+	Suggestion: use a compatible library with a minSdk of at most 21,
+		or increase this project's minSdk version to at least 23,
+		or use tools:overrideLibrary="com.google.firebase.auth" to force usage (may lead to runtime failures)
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:processReleaseMainManifest'.
+> Manifest merger failed : uses-sdk:minSdkVersion 21 cannot be smaller than version 23 declared in library [com.google.firebase:firebase-auth:23.2.1] /home/runner/.gradle/caches/transforms-3/c88774b793b291c03076cbd33f2138e7/transformed/jetified-firebase-auth-23.2.1/AndroidManifest.xml as the library might be using APIs not available in 21
+  	Suggestion: use a compatible library with a minSdk of at most 21,
+  		or increase this project's minSdk version to at least 23,
+  		or use tools:overrideLibrary="com.google.firebase.auth" to force usage (may lead to runtime failures)
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 2m 44s
+Running Gradle task 'assembleRelease'...                          165.8s
+Gradle task assembleRelease failed with exit code 1
