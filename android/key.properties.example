@@ -1,0 +1,7 @@
+# Example Android release keystore configuration for RouteSense
+# Copy this file to android/key.properties and replace the placeholder values.
+# NEVER commit android/key.properties containing real credentials to version control.
+storePassword=yourKeystorePassword
+keyPassword=yourKeyPassword
+keyAlias=upload
+storeFile=../upload-keystore.jks
