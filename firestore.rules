@@ -1,0 +1,111 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions for Role-Based Access Control (RBAC)
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isOpsManagerOrAdmin() {
+      return isAuthenticated() && (
+        !exists(/databases/$(database)/documents/users/$(request.auth.uid)) ||
+        getUserData().role == 'operations_manager' ||
+        getUserData().role == 'admin'
+      );
+    }
+
+    function isConductor() {
+      return isAuthenticated() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && getUserData().role == 'conductor';
+    }
+
+    function isDriver() {
+      return isAuthenticated() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && getUserData().role == 'driver';
+    }
+
+    function isPassenger() {
+      return isAuthenticated() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && getUserData().role == 'passenger';
+    }
+
+    // 1. Users collection: users can read their own or ops manager can read all; self profile edit
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      allow update: if isOwner(userId) || isOpsManagerOrAdmin();
+      allow delete: if isOpsManagerOrAdmin();
+    }
+
+    // 2. Bus routes: publicly readable by authenticated users; editable by Ops Manager/Admin
+    match /routes/{routeId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    // 3. Buses collection: readable by all auth users; updated by driver/conductor assigned or ops
+    match /buses/{busId} {
+      allow read: if true;
+      allow create, delete: if isAuthenticated();
+      allow update: if isAuthenticated();
+    }
+
+    // 4. Trips collection: readable by all auth users; manageable by crew or ops
+    match /trips/{tripId} {
+      allow read: if true;
+      allow create, update: if isAuthenticated();
+      allow delete: if isAuthenticated();
+    }
+
+    // 5. Digital QR Tickets: passenger can read their own tickets; conductor and ops can read and create
+    match /tickets/{ticketId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if isAuthenticated();
+    }
+
+    // 6. Incidents: readable by all; drivers & ops can create; ops manager can resolve/update
+    match /incidents/{incidentId} {
+      allow read: if true;
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAuthenticated();
+    }
+
+    // 7. Notifications: readable and manageable by authenticated users
+    match /notifications/{notifId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // 8. Reconciliations & Shifts
+    match /shifts/{shiftId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /reconciliations/{recId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // 9. Recurring Issues & Smart Insights
+    match /recurring_issues/{issueId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /smart_insights/{insightId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    // 10. Gemini Chat History
+    match /chat_messages/{messageId} {
+      allow read, write: if isAuthenticated();
+    }
+  }
+}

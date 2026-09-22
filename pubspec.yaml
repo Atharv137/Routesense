@@ -1,0 +1,24 @@
+name: routesense
+description: "RouteSense — Fleet Visibility & Operations Platform. A cross-platform Flutter application powered by Cloud Firestore and Firebase."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+  flutter: '>=3.19.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  provider: ^6.1.2
+  intl: ^0.19.0
+  uuid: ^4.5.1
+  qr_flutter: ^4.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
