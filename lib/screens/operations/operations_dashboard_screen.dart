@@ -6,6 +6,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/bus_provider.dart';
 import '../../providers/dashboard_provider.dart';
 import '../../providers/incident_provider.dart';
+import '../../providers/route_provider.dart';
 import '../../providers/ticket_provider.dart';
 import '../../widgets/common/status_badge.dart';
 
@@ -18,6 +19,7 @@ class OperationsDashboardScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
     final busProv = Provider.of<BusProvider>(context);
+    final routeProv = Provider.of<RouteProvider>(context);
     final incidentProv = Provider.of<IncidentProvider>(context);
     final ticketProv = Provider.of<TicketProvider>(context);
     final dash = Provider.of<DashboardProvider>(context);
@@ -26,6 +28,7 @@ class OperationsDashboardScreen extends StatelessWidget {
     final onTimeCount = buses.where((b) => b.isOnTime).length;
     final onTimePercent = buses.isNotEmpty ? ((onTimeCount / buses.length) * 100).round() : 100;
     final totalRevenue = ticketProv.tickets.fold<double>(0.0, (sum, t) => sum + t.totalFare);
+    final totalPax = ticketProv.tickets.fold<int>(0, (sum, t) => sum + t.passengerCount);
     final openIncidents = incidentProv.allIncidents.where((i) => i.status == 'open').toList();
 
     return SingleChildScrollView(
@@ -243,7 +246,7 @@ class OperationsDashboardScreen extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'Reported by ${inc.driverName} • ${Formatters.fromIsoString(inc.timestamp)}',
+                                'Reported by ${inc.driverName ?? "Driver"} • ${Formatters.fromIsoString(inc.timestamp)}',
                                 style: const TextStyle(fontSize: 10, color: AppColors.textMuted),
                               ),
                               ElevatedButton(

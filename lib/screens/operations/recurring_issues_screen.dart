@@ -44,10 +44,10 @@ class RecurringIssuesScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(14),
               border: Border.all(color: AppColors.primary.withOpacity(0.3)),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.auto_awesome_rounded, color: AppColors.primary, size: 24),
-                SizedBox(width: 12),
+                const Icon(Icons.auto_awesome_rounded, color: AppColors.primary, size: 24),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     'Automated anomaly clustering engine scans 7-day operational logs for repeat breakdowns, signal delays, and bottleneck choke points.',

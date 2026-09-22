@@ -1,5 +1,4 @@
 import express, { Request, Response } from 'express';
-import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { GoogleGenAI } from '@google/genai';
@@ -195,21 +194,10 @@ Always maintain persona, format lists and tables cleanly with Markdown, highligh
 });
 
 /**
- * Web static serving & Vite integration
- * Automatically serves the Flutter Web application from build/web if present,
- * or falls back to Vite middleware for development preview.
+ * Vite integration for development & static serving in production
  */
 async function startServer() {
-  const flutterWebPath = path.join(process.cwd(), 'build', 'web');
-  const hasFlutterWeb = fs.existsSync(flutterWebPath) && fs.existsSync(path.join(flutterWebPath, 'index.html'));
-
-  if (hasFlutterWeb) {
-    console.log(`Serving RouteSense Flutter Web application from: ${flutterWebPath}`);
-    app.use(express.static(flutterWebPath));
-    app.get('*', (req: Request, res: Response) => {
-      res.sendFile(path.join(flutterWebPath, 'index.html'));
-    });
-  } else if (process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',

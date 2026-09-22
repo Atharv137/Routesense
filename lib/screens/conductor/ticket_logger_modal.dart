@@ -3,9 +3,11 @@ import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../models/trip_model.dart';
+import '../../models/route_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/route_provider.dart';
 import '../../providers/ticket_provider.dart';
+import '../../providers/trip_provider.dart';
 
 class TicketLoggerModal extends StatefulWidget {
   final TripModel trip;
@@ -248,7 +250,6 @@ class _TicketLoggerModalState extends State<TicketLoggerModal> {
                     );
 
                     setState(() => _isSaving = false);
-                    if (!mounted) return;
 
                     if (ticket != null) {
                       Navigator.of(context).pop();

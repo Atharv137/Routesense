@@ -182,7 +182,7 @@ class DriverHomeScreen extends StatelessWidget {
 
           ListView.separated(
             shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
+            physics: const NeverScrollableScrollPhysics),
             itemCount: route.scheduledStops.length,
             separatorBuilder: (_, __) => const SizedBox(height: 8),
             itemBuilder: (context, idx) {

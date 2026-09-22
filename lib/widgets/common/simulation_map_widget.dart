@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../models/bus_model.dart';
@@ -239,7 +238,7 @@ class SimulationMapWidget extends StatelessWidget {
                           ),
                         ),
                       );
-                    }),
+                    }).toList(),
                   ],
                 );
               },

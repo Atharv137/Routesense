@@ -268,7 +268,6 @@ class _IncidentReportModalState extends State<IncidentReportModal> {
                       );
 
                       setState(() => _isSubmitting = false);
-                      if (!mounted) return;
 
                       if (incident != null) {
                         Navigator.of(context).pop();
