@@ -1,0 +1,6 @@
+{
+  "name": "RouteSense — Fleet Visibility & Operations",
+  "description": "Smart bus operations, rapid digital ticketing, real-time fleet visibility, incident management, recurring issue detection, and passenger transit.",
+  "requestFramePermissions": ["camera", "geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

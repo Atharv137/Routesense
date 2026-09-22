@@ -1,0 +1,79 @@
+{
+  "entities": {
+    "users": {
+      "title": "Users",
+      "description": "System accounts for commuters, conductors, drivers, and operations managers",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "name": { "type": "string" },
+        "role": { "type": "string", "enum": ["passenger", "conductor", "driver", "operations_manager", "admin"] },
+        "phone": { "type": "string" },
+        "employeeId": { "type": "string" },
+        "busAssigned": { "type": "string" },
+        "routeAssigned": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["uid", "email", "name", "role"]
+    },
+    "tickets": {
+      "title": "Digital Tickets",
+      "description": "Passenger and conductor POS digital tickets with QR verification",
+      "type": "object",
+      "properties": {
+        "ticketId": { "type": "string" },
+        "routeId": { "type": "string" },
+        "routeNumber": { "type": "string" },
+        "fromStop": { "type": "string" },
+        "toStop": { "type": "string" },
+        "farePerPassenger": { "type": "number" },
+        "passengerCount": { "type": "number" },
+        "totalFare": { "type": "number" },
+        "paymentType": { "type": "string", "enum": ["cash", "upi", "card"] },
+        "qrCodeData": { "type": "string" },
+        "issuedAt": { "type": "string" },
+        "passengerId": { "type": "string" },
+        "conductorId": { "type": "string" },
+        "status": { "type": "string", "enum": ["valid", "used", "expired"] }
+      },
+      "required": ["ticketId", "routeId", "fromStop", "toStop", "totalFare", "issuedAt", "status"]
+    },
+    "incidents": {
+      "title": "Fleet Incidents",
+      "description": "Driver and operations reports on breakdowns, delays, and obstructions",
+      "type": "object",
+      "properties": {
+        "incidentId": { "type": "string" },
+        "routeId": { "type": "string" },
+        "busId": { "type": "string" },
+        "type": { "type": "string", "enum": ["delay", "breakdown", "obstruction"] },
+        "severity": { "type": "string", "enum": ["low", "medium", "high", "critical"] },
+        "status": { "type": "string", "enum": ["open", "resolved"] },
+        "delayMinutes": { "type": "number" },
+        "locationName": { "type": "string" },
+        "description": { "type": "string" },
+        "timestamp": { "type": "string" },
+        "driverName": { "type": "string" },
+        "driverId": { "type": "string" }
+      },
+      "required": ["incidentId", "type", "severity", "status", "timestamp"]
+    },
+    "chat_messages": {
+      "title": "Gemini Assistant Conversations",
+      "description": "Stored multi-turn chat messages with role instructions and grounding citations",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "model", "system"] },
+        "content": { "type": "string" },
+        "modelUsed": { "type": "string" },
+        "groundingType": { "type": "string" },
+        "citations": { "type": "array" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["id", "userId", "role", "content", "timestamp"]
+    }
+  }
+}
