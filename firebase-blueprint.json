@@ -2,78 +2,304 @@
   "entities": {
     "users": {
       "title": "Users",
-      "description": "System accounts for commuters, conductors, drivers, and operations managers",
+      "description": "System accounts for commuters, conductors, drivers, operations managers, and administrators",
       "type": "object",
       "properties": {
-        "uid": { "type": "string" },
-        "email": { "type": "string" },
-        "name": { "type": "string" },
+        "uid": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "maxLength": 256 },
+        "name": { "type": "string", "maxLength": 128 },
         "role": { "type": "string", "enum": ["passenger", "conductor", "driver", "operations_manager", "admin"] },
-        "phone": { "type": "string" },
-        "employeeId": { "type": "string" },
-        "busAssigned": { "type": "string" },
-        "routeAssigned": { "type": "string" },
+        "phone": { "type": "string", "maxLength": 32 },
+        "employeeId": { "type": "string", "maxLength": 64 },
+        "staffId": { "type": "string", "maxLength": 64 },
+        "status": { "type": "string", "enum": ["active", "suspended", "disabled", "pending"] },
+        "busAssigned": { "type": "string", "maxLength": 64 },
+        "routeAssigned": { "type": "string", "maxLength": 64 },
+        "assignedRoute": { "type": "string", "maxLength": 64 },
+        "shiftStatus": { "type": "string", "enum": ["on_duty", "off_duty", "on_break"] },
+        "profilePhoto": { "type": "string", "maxLength": 1024 },
+        "emailVerified": { "type": "boolean" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["uid", "email", "name", "role", "createdAt"]
+    },
+    "routes": {
+      "title": "Bus Routes",
+      "description": "Transit corridors, scheduled stops, and fare schedules",
+      "type": "object",
+      "properties": {
+        "routeId": { "type": "string", "maxLength": 64 },
+        "routeName": { "type": "string", "maxLength": 128 },
+        "routeNumber": { "type": "string", "maxLength": 32 },
+        "startPoint": { "type": "string", "maxLength": 128 },
+        "endPoint": { "type": "string", "maxLength": 128 },
+        "scheduledStops": { "type": "array" },
+        "farePerStop": { "type": "number" },
+        "baseFare": { "type": "number" },
+        "activeFlag": { "type": "boolean" },
+        "totalDistanceKm": { "type": "number" },
+        "avgDurationMin": { "type": "number" },
+        "frequencyMin": { "type": "number" },
+        "activeBusesCount": { "type": "number" },
         "createdAt": { "type": "string" }
       },
-      "required": ["uid", "email", "name", "role"]
+      "required": ["routeId", "routeName", "routeNumber", "farePerStop", "baseFare", "activeFlag"]
+    },
+    "buses": {
+      "title": "Fleet Vehicles",
+      "description": "Fleet vehicles and real-time operational status",
+      "type": "object",
+      "properties": {
+        "busId": { "type": "string", "maxLength": 64 },
+        "busNumber": { "type": "string", "maxLength": 32 },
+        "routeId": { "type": "string", "maxLength": 64 },
+        "routeName": { "type": "string", "maxLength": 128 },
+        "routeNumber": { "type": "string", "maxLength": 32 },
+        "driverId": { "type": "string", "maxLength": 128 },
+        "driverName": { "type": "string", "maxLength": 128 },
+        "conductorId": { "type": "string", "maxLength": 128 },
+        "conductorName": { "type": "string", "maxLength": 128 },
+        "capacity": { "type": "number" },
+        "currentLoad": { "type": "number" },
+        "currentPassengers": { "type": "number" },
+        "status": { "type": "string", "enum": ["on_time", "delayed", "breakdown", "idle", "maintenance"] },
+        "currentSpeed": { "type": "number" },
+        "nextStop": { "type": "string", "maxLength": 128 },
+        "etaNextStopMin": { "type": "number" },
+        "latitude": { "type": "number" },
+        "longitude": { "type": "number" },
+        "delayMinutes": { "type": "number" },
+        "lastUpdated": { "type": "string" }
+      },
+      "required": ["busId", "busNumber", "routeId", "status", "capacity"]
+    },
+    "trips": {
+      "title": "Transit Trips",
+      "description": "Active and completed trips with crew, passenger counts and progress",
+      "type": "object",
+      "properties": {
+        "tripId": { "type": "string", "maxLength": 64 },
+        "routeId": { "type": "string", "maxLength": 64 },
+        "routeName": { "type": "string", "maxLength": 128 },
+        "routeNumber": { "type": "string", "maxLength": 32 },
+        "busId": { "type": "string", "maxLength": 64 },
+        "busNumber": { "type": "string", "maxLength": 32 },
+        "conductorId": { "type": "string", "maxLength": 128 },
+        "conductorName": { "type": "string", "maxLength": 128 },
+        "driverId": { "type": "string", "maxLength": 128 },
+        "driverName": { "type": "string", "maxLength": 128 },
+        "ticketCount": { "type": "number" },
+        "passengerLoad": { "type": "number" },
+        "capacity": { "type": "number" },
+        "currentPassengers": { "type": "number" },
+        "status": { "type": "string", "enum": ["scheduled", "in_progress", "completed", "delayed", "cancelled"] },
+        "startTime": { "type": "string" },
+        "endTime": { "type": "string" },
+        "timestamp": { "type": "string" },
+        "currentStopIndex": { "type": "number" },
+        "currentStopName": { "type": "string", "maxLength": 128 },
+        "nextStopName": { "type": "string", "maxLength": 128 },
+        "direction": { "type": "string", "enum": ["UP", "DOWN"] },
+        "totalRevenue": { "type": "number" },
+        "delayMinutes": { "type": "number" }
+      },
+      "required": ["tripId", "routeId", "busId", "status", "startTime"]
     },
     "tickets": {
       "title": "Digital Tickets",
       "description": "Passenger and conductor POS digital tickets with QR verification",
       "type": "object",
       "properties": {
-        "ticketId": { "type": "string" },
-        "routeId": { "type": "string" },
-        "routeNumber": { "type": "string" },
-        "fromStop": { "type": "string" },
-        "toStop": { "type": "string" },
+        "ticketId": { "type": "string", "maxLength": 64 },
+        "tripId": { "type": "string", "maxLength": 64 },
+        "routeId": { "type": "string", "maxLength": 64 },
+        "routeName": { "type": "string", "maxLength": 128 },
+        "routeNumber": { "type": "string", "maxLength": 32 },
+        "busNumber": { "type": "string", "maxLength": 32 },
+        "fromStop": { "type": "string", "maxLength": 128 },
+        "toStop": { "type": "string", "maxLength": 128 },
+        "fare": { "type": "number" },
         "farePerPassenger": { "type": "number" },
         "passengerCount": { "type": "number" },
         "totalFare": { "type": "number" },
-        "paymentType": { "type": "string", "enum": ["cash", "upi", "card"] },
-        "qrCodeData": { "type": "string" },
+        "paymentType": { "type": "string", "enum": ["cash", "razorpay_digital", "pass", "upi", "card"] },
+        "paymentStatus": { "type": "string", "enum": ["paid", "pending", "refunded"] },
+        "qrCodeData": { "type": "string", "maxLength": 2048 },
+        "timestamp": { "type": "string" },
         "issuedAt": { "type": "string" },
-        "passengerId": { "type": "string" },
-        "conductorId": { "type": "string" },
+        "passengerId": { "type": "string", "maxLength": 128 },
+        "passengerName": { "type": "string", "maxLength": 128 },
+        "conductorId": { "type": "string", "maxLength": 128 },
+        "conductorName": { "type": "string", "maxLength": 128 },
+        "issuedByRole": { "type": "string", "enum": ["conductor", "passenger"] },
         "status": { "type": "string", "enum": ["valid", "used", "expired"] }
       },
-      "required": ["ticketId", "routeId", "fromStop", "toStop", "totalFare", "issuedAt", "status"]
+      "required": ["ticketId", "routeId", "fromStop", "toStop", "totalFare"]
     },
     "incidents": {
       "title": "Fleet Incidents",
       "description": "Driver and operations reports on breakdowns, delays, and obstructions",
       "type": "object",
       "properties": {
-        "incidentId": { "type": "string" },
-        "routeId": { "type": "string" },
-        "busId": { "type": "string" },
+        "incidentId": { "type": "string", "maxLength": 64 },
+        "routeId": { "type": "string", "maxLength": 64 },
+        "routeName": { "type": "string", "maxLength": 128 },
+        "routeNumber": { "type": "string", "maxLength": 32 },
+        "busId": { "type": "string", "maxLength": 64 },
+        "busNumber": { "type": "string", "maxLength": 32 },
         "type": { "type": "string", "enum": ["delay", "breakdown", "obstruction"] },
         "severity": { "type": "string", "enum": ["low", "medium", "high", "critical"] },
-        "status": { "type": "string", "enum": ["open", "resolved"] },
+        "status": { "type": "string", "enum": ["open", "in_review", "resolved"] },
         "delayMinutes": { "type": "number" },
-        "locationName": { "type": "string" },
-        "description": { "type": "string" },
+        "locationName": { "type": "string", "maxLength": 128 },
+        "description": { "type": "string", "maxLength": 1024 },
+        "photoUrl": { "type": "string", "maxLength": 1024 },
         "timestamp": { "type": "string" },
-        "driverName": { "type": "string" },
-        "driverId": { "type": "string" }
+        "driverName": { "type": "string", "maxLength": 128 },
+        "driverId": { "type": "string", "maxLength": 128 },
+        "resolvedAt": { "type": "string" },
+        "resolutionNotes": { "type": "string", "maxLength": 1024 }
       },
       "required": ["incidentId", "type", "severity", "status", "timestamp"]
     },
+    "notifications": {
+      "title": "Notifications",
+      "description": "Operational alerts and user notifications",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64 },
+        "title": { "type": "string", "maxLength": 128 },
+        "message": { "type": "string", "maxLength": 512 },
+        "type": { "type": "string", "enum": ["delay", "breakdown", "obstruction", "ticket", "recurring", "system"] },
+        "severity": { "type": "string", "enum": ["info", "warning", "error", "success"] },
+        "timestamp": { "type": "string" },
+        "read": { "type": "boolean" },
+        "targetRoles": { "type": "array" },
+        "routeId": { "type": "string", "maxLength": 64 },
+        "link": { "type": "string", "maxLength": 256 }
+      },
+      "required": ["id", "title", "message", "type", "severity", "timestamp", "read"]
+    },
     "chat_messages": {
-      "title": "Gemini Assistant Conversations",
+      "title": "Gemini Transit Copilot Messages",
       "description": "Stored multi-turn chat messages with role instructions and grounding citations",
       "type": "object",
       "properties": {
-        "id": { "type": "string" },
-        "userId": { "type": "string" },
+        "id": { "type": "string", "maxLength": 64 },
+        "userId": { "type": "string", "maxLength": 128 },
         "role": { "type": "string", "enum": ["user", "model", "system"] },
-        "content": { "type": "string" },
-        "modelUsed": { "type": "string" },
+        "content": { "type": "string", "maxLength": 8192 },
+        "modelUsed": { "type": "string", "maxLength": 64 },
         "groundingType": { "type": "string" },
         "citations": { "type": "array" },
         "timestamp": { "type": "string" }
       },
       "required": ["id", "userId", "role", "content", "timestamp"]
+    },
+    "recurring_issues": {
+      "title": "Recurring Issues",
+      "description": "Corridor bottleneck analytics and pattern detection",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64 },
+        "routeId": { "type": "string", "maxLength": 64 },
+        "routeName": { "type": "string", "maxLength": 128 },
+        "routeNumber": { "type": "string", "maxLength": 32 },
+        "incidentCount": { "type": "number" },
+        "period": { "type": "string", "enum": ["7_days", "30_days"] },
+        "mostCommonType": { "type": "string", "enum": ["delay", "breakdown", "obstruction"] },
+        "peakProblemPeriod": { "type": "string", "maxLength": 64 },
+        "lastIncidentTime": { "type": "string" },
+        "recommendation": { "type": "string", "maxLength": 1024 },
+        "confidenceScore": { "type": "number" },
+        "affectedStops": { "type": "array" }
+      },
+      "required": ["id", "routeId", "incidentCount", "recommendation"]
+    },
+    "smart_insights": {
+      "title": "Smart Insights",
+      "description": "Fleet intelligence metrics and automated recommendations",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64 },
+        "title": { "type": "string", "maxLength": 128 },
+        "routeId": { "type": "string", "maxLength": 64 },
+        "routeName": { "type": "string", "maxLength": 128 },
+        "summary": { "type": "string", "maxLength": 1024 },
+        "recommendation": { "type": "string", "maxLength": 1024 },
+        "type": { "type": "string", "enum": ["capacity_alert", "delay_pattern", "fuel_efficiency", "revenue_peak"] },
+        "metricValue": { "type": "string", "maxLength": 64 },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["id", "title", "summary", "type", "timestamp"]
+    },
+    "shifts": {
+      "title": "Shift Summaries",
+      "description": "Conductor shift logs and revenue reconciliations",
+      "type": "object",
+      "properties": {
+        "shiftId": { "type": "string", "maxLength": 64 },
+        "conductorId": { "type": "string", "maxLength": 128 },
+        "conductorName": { "type": "string", "maxLength": 128 },
+        "date": { "type": "string", "maxLength": 32 },
+        "totalTickets": { "type": "number" },
+        "totalPassengers": { "type": "number" },
+        "totalTrips": { "type": "number" },
+        "shiftTotalRevenue": { "type": "number" },
+        "cashRevenue": { "type": "number" },
+        "digitalRevenue": { "type": "number" },
+        "startTime": { "type": "string", "maxLength": 32 },
+        "endTime": { "type": "string", "maxLength": 32 },
+        "status": { "type": "string", "enum": ["active", "closed"] }
+      },
+      "required": ["shiftId", "conductorId", "date", "status"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "users",
+      "description": "User profiles, roles, and transit credentials"
+    },
+    "/routes/{routeId}": {
+      "schema": "routes",
+      "description": "Transit corridors, stops, and fare tables"
+    },
+    "/buses/{busId}": {
+      "schema": "buses",
+      "description": "Fleet buses and real-time operational status"
+    },
+    "/trips/{tripId}": {
+      "schema": "trips",
+      "description": "Scheduled and active transit trips"
+    },
+    "/tickets/{ticketId}": {
+      "schema": "tickets",
+      "description": "Digital QR ticketing and verification logs"
+    },
+    "/incidents/{incidentId}": {
+      "schema": "incidents",
+      "description": "Driver and operations incident reports"
+    },
+    "/notifications/{notifId}": {
+      "schema": "notifications",
+      "description": "Fleet alerts and commuter notifications"
+    },
+    "/chat_messages/{messageId}": {
+      "schema": "chat_messages",
+      "description": "Transit AI copilot conversation history"
+    },
+    "/recurring_issues/{issueId}": {
+      "schema": "recurring_issues",
+      "description": "Detected corridor delay patterns"
+    },
+    "/smart_insights/{insightId}": {
+      "schema": "smart_insights",
+      "description": "Operational fleet intelligence insights"
+    },
+    "/shifts/{shiftId}": {
+      "schema": "shifts",
+      "description": "Shift reconciliations and cash logs"
     }
   }
 }

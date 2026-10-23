@@ -29,7 +29,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
   userRole,
 }) => {
   const { currentUser } = useAuth();
-  const role: UserRole = userRole || currentUser?.role || 'conductor';
+  const role: UserRole = userRole || currentUser?.role || 'passenger';
 
   const handleTabSelect = (tabId: string) => {
     if (onTabChange) onTabChange(tabId);
@@ -85,7 +85,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
   const items = getNavItems();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-lg border-t border-neutral-100/90 px-2 py-2 safe-area-bottom shadow-lg shadow-neutral-900/5">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-lg border-t border-neutral-100/90 px-2 py-2 safe-area-bottom shadow-lg shadow-neutral-900/5">
       <div className="max-w-lg mx-auto flex items-center justify-around">
         {items.map(item => {
           const isActive = activeTab === item.id;

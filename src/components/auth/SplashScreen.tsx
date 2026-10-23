@@ -2,15 +2,20 @@ import React, { useEffect } from 'react';
 import { Bus, Sparkles, ArrowRight } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
-export const SplashScreen: React.FC = () => {
+interface SplashScreenProps {
+  onFinish?: () => void;
+}
+
+export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
   const { dismissSplash } = useAuth();
 
   useEffect(() => {
     const timer = setTimeout(() => {
       dismissSplash();
+      onFinish?.();
     }, 2800);
     return () => clearTimeout(timer);
-  }, [dismissSplash]);
+  }, [dismissSplash, onFinish]);
 
   return (
     <div className="fixed inset-0 z-50 bg-white flex flex-col items-center justify-between p-8 select-none">

@@ -135,7 +135,7 @@ class _ShiftSummaryScreenState extends State<ShiftSummaryScreen> {
                         ),
                       );
                     },
-                    child: const Text('Verify & Reconcile Cash Handover'),
+                    child: Text(_isReconciled ? '✓ Handover Reconciled' : 'Verify & Reconcile Cash Handover'),
                   ),
                 ),
               ],

@@ -38,7 +38,7 @@ export const PassengerTicketsView: React.FC<PassengerTicketsViewProps> = ({ onBa
   }, [selectedTicket]);
 
   return (
-    <div className="p-4 sm:p-6 space-y-6 max-w-2xl mx-auto pb-24 animate-in fade-in duration-200">
+    <div className="p-4 sm:p-6 md:p-8 space-y-6 md:space-y-8 w-full max-w-5xl lg:max-w-6xl xl:max-w-7xl mx-auto pb-24 md:pb-12 animate-in fade-in duration-200">
       {/* Top Bar */}
       <div className="flex items-center justify-between">
         {onBack && (
@@ -65,7 +65,7 @@ export const PassengerTicketsView: React.FC<PassengerTicketsViewProps> = ({ onBa
       </div>
 
       {/* Tickets List */}
-      <div className="space-y-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {passengerTickets.length === 0 ? (
           <div className="rs-card p-12 text-center">
             <Ticket className="w-12 h-12 text-neutral-300 mx-auto mb-3" />

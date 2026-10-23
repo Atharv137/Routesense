@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
-import '../../models/trip_model.dart';
-import '../../models/route_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/route_provider.dart';
 import '../../providers/trip_provider.dart';
@@ -135,7 +133,7 @@ class TripProgressScreen extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            '+${stop.distanceFromPrevKm} km from previous stop',
+                            'ETA ~${stop.etaMinutes} mins • Stop #${idx + 1}',
                             style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
                           ),
                         ],

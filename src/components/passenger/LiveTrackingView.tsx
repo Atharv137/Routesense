@@ -25,7 +25,7 @@ export const LiveTrackingView: React.FC<LiveTrackingViewProps> = ({ onBack, rout
   const formattedArrival = arrivalDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 
   return (
-    <div className="p-4 sm:p-6 space-y-6 max-w-2xl mx-auto pb-24 animate-in fade-in duration-200">
+    <div className="p-4 sm:p-6 md:p-8 space-y-6 md:space-y-8 w-full max-w-5xl lg:max-w-6xl xl:max-w-7xl mx-auto pb-24 md:pb-12 animate-in fade-in duration-200">
       {/* Top Bar */}
       <div className="flex items-center justify-between">
         {onBack && (
@@ -59,94 +59,100 @@ export const LiveTrackingView: React.FC<LiveTrackingViewProps> = ({ onBack, rout
         ))}
       </div>
 
-      {/* Real-time Google Bus Map */}
-      <GoogleBusMap
-        buses={buses.filter(b => b.routeId === activeRoute.routeId)}
-        routes={[activeRoute]}
-        selectedRouteId={activeRoute.routeId}
-        selectedBusId={activeBus.busId}
-        heightClass="h-[340px] sm:h-[400px]"
-      />
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left Column: Map & Live ETA Status */}
+        <div className="lg:col-span-7 space-y-4 sm:space-y-6">
+          {/* Real-time Google Bus Map */}
+          <GoogleBusMap
+            buses={buses.filter(b => b.routeId === activeRoute.routeId)}
+            routes={[activeRoute]}
+            selectedRouteId={activeRoute.routeId}
+            selectedBusId={activeBus.busId}
+            heightClass="h-[340px] sm:h-[400px] lg:h-[420px]"
+          />
 
-      {/* Header & Status (PRD Section 17 & 18) */}
-      <div className="rs-card p-6 border border-neutral-100 shadow-md space-y-4">
-
-        <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
-          <div>
-            <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#FF6B00]">
-              Active Corridor
-            </span>
-            <h2 className="text-xl font-black text-[#171717]">
-              Route {activeRoute.routeNumber} ({activeRoute.startPoint.split(' ')[0]} → {activeRoute.endPoint.split(' ')[0]})
-            </h2>
-          </div>
-          <StatusBadge status={activeBus.status} />
-        </div>
-
-        {/* Big ETA Callout (PRD Section 18) */}
-        <div className="grid grid-cols-2 gap-3 text-center">
-          <div className="p-4 rounded-2xl bg-orange-50/70 border border-orange-200">
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#6B6B6B]">
-              Arriving In
-            </span>
-            <div className="text-3xl font-black text-[#FF6B00] mt-0.5">
-              {etaMinutes} min
-            </div>
-            <span className="text-[10px] text-[#6B6B6B]">3 stops away</span>
-          </div>
-
-          <div className="p-4 rounded-2xl bg-neutral-50 border border-neutral-200">
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#6B6B6B]">
-              Expected Arrival
-            </span>
-            <div className="text-2xl font-black text-[#171717] mt-1">
-              {formattedArrival}
-            </div>
-            <span className="text-[10px] text-[#22A06B] font-bold">On Schedule</span>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between text-xs text-[#6B6B6B] pt-1">
-          <span>Next Stop: <strong className="text-[#171717]">{activeBus.nextStop}</strong></span>
-          <span>Bus Plate: <strong className="font-mono text-[#171717]">{activeBus.busNumber}</strong></span>
-        </div>
-      </div>
-
-      {/* Stop Progression Timeline (PRD Section 17 & 18) */}
-      <div className="rs-card p-6 border border-neutral-100 space-y-4">
-        <h3 className="text-sm font-bold text-[#171717]">Route Waypoints & Progress</h3>
-
-        <div className="relative pl-6 space-y-6 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-neutral-200">
-          {stops.map((stop, idx) => {
-            const isPassed = idx < activeTrip.currentStopIndex;
-            const isCurrent = idx === activeTrip.currentStopIndex;
-            return (
-              <div key={stop.stopId} className="relative flex items-center justify-between text-xs">
-                <div
-                  className={`absolute -left-6 w-4 h-4 rounded-full border-2 border-white flex items-center justify-center ${
-                    isPassed
-                      ? 'bg-[#22A06B]'
-                      : isCurrent
-                      ? 'bg-[#FF6B00] ring-4 ring-[#FF6B00]/25'
-                      : 'bg-neutral-300'
-                  }`}
-                />
-                <div>
-                  <div className={`font-bold ${isCurrent ? 'text-[#FF6B00]' : isPassed ? 'text-neutral-500' : 'text-[#171717]'}`}>
-                    {stop.name} {stop.isMajor && '★'}
-                  </div>
-                  {isCurrent && (
-                    <span className="text-[10px] font-bold text-[#FF6B00] block mt-0.5">
-                      ● Bus currently approaching
-                    </span>
-                  )}
-                </div>
-                <span className="text-[11px] font-mono text-[#6B6B6B]">
-                  {isPassed ? 'Passed' : isCurrent ? `${etaMinutes} min` : `+${stop.etaMinutes} min`}
+          {/* Header & Status (PRD Section 17 & 18) */}
+          <div className="rs-card p-6 border border-neutral-100 shadow-md space-y-4">
+            <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
+              <div>
+                <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#FF6B00]">
+                  Active Corridor
                 </span>
+                <h2 className="text-xl font-black text-[#171717]">
+                  Route {activeRoute.routeNumber} ({activeRoute.startPoint.split(' ')[0]} → {activeRoute.endPoint.split(' ')[0]})
+                </h2>
               </div>
-            );
-          })}
+              <StatusBadge status={activeBus.status} />
+            </div>
+
+            {/* Big ETA Callout (PRD Section 18) */}
+            <div className="grid grid-cols-2 gap-3 text-center">
+              <div className="p-4 rounded-2xl bg-orange-50/70 border border-orange-200">
+                <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#6B6B6B]">
+                  Arriving In
+                </span>
+                <div className="text-3xl font-black text-[#FF6B00] mt-0.5">
+                  {etaMinutes} min
+                </div>
+                <span className="text-[10px] text-[#6B6B6B]">3 stops away</span>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-neutral-50 border border-neutral-200">
+                <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#6B6B6B]">
+                  Expected Arrival
+                </span>
+                <div className="text-2xl font-black text-[#171717] mt-1">
+                  {formattedArrival}
+                </div>
+                <span className="text-[10px] text-[#22A06B] font-bold">On Schedule</span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between text-xs text-[#6B6B6B] pt-1">
+              <span>Next Stop: <strong className="text-[#171717]">{activeBus.nextStop}</strong></span>
+              <span>Bus Plate: <strong className="font-mono text-[#171717]">{activeBus.busNumber}</strong></span>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column: Route Waypoints & Progress */}
+        <div className="lg:col-span-5">
+          <div className="rs-card p-6 border border-neutral-100 space-y-4">
+            <h3 className="text-sm font-bold text-[#171717]">Route Waypoints & Progress</h3>
+
+            <div className="relative pl-6 space-y-6 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-neutral-200">
+              {stops.map((stop, idx) => {
+                const isPassed = idx < activeTrip.currentStopIndex;
+                const isCurrent = idx === activeTrip.currentStopIndex;
+                return (
+                  <div key={stop.stopId} className="relative flex items-center justify-between text-xs">
+                    <div
+                      className={`absolute -left-6 w-4 h-4 rounded-full border-2 border-white flex items-center justify-center ${
+                        isPassed
+                          ? 'bg-[#22A06B]'
+                          : isCurrent
+                          ? 'bg-[#FF6B00] ring-4 ring-[#FF6B00]/25'
+                          : 'bg-neutral-300'
+                      }`}
+                    />
+                    <div>
+                      <div className={`font-bold ${isCurrent ? 'text-[#FF6B00]' : isPassed ? 'text-neutral-500' : 'text-[#171717]'}`}>
+                        {stop.name} {stop.isMajor && '★'}
+                      </div>
+                      {isCurrent && (
+                        <span className="text-[10px] font-bold text-[#FF6B00] block mt-0.5">
+                          ● Bus currently approaching
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-[11px] font-mono text-[#6B6B6B]">
+                      {isPassed ? 'Passed' : isCurrent ? `${etaMinutes} min` : `+${stop.etaMinutes} min`}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </div>
     </div>

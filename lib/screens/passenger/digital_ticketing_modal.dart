@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/utils/formatters.dart';
-import '../../models/route_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/route_provider.dart';
 import '../../providers/ticket_provider.dart';
@@ -22,7 +21,7 @@ class _DigitalTicketingModalState extends State<DigitalTicketingModal> {
   String? _fromStop;
   String? _toStop;
   int _passengerCount = 1;
-  String _paymentMethod = 'razorpay_digital';
+  final String _paymentMethod = 'razorpay_digital';
   bool _isProcessing = false;
 
   @override
@@ -237,6 +236,7 @@ class _DigitalTicketingModalState extends State<DigitalTicketingModal> {
                     );
 
                     setState(() => _isProcessing = false);
+                    if (!mounted) return;
 
                     if (ticket != null) {
                       Navigator.of(context).pop();

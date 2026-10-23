@@ -33,8 +33,10 @@ import { RouteSearchView } from './components/passenger/RouteSearchView';
 import { PassengerTicketsView } from './components/passenger/PassengerTicketsView';
 import { LiveTrackingView } from './components/passenger/LiveTrackingView';
 
+import { Bus, ShieldAlert } from 'lucide-react';
+
 const MainAppContent: React.FC = () => {
-  const { currentUser, isLoading } = useAuth();
+  const { currentUser, isLoading, showSplash, dismissSplash, authError, logout } = useAuth();
   const { isOffline, offlineQueueCount, syncOfflineQueue } = useOperations();
 
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
@@ -46,8 +48,43 @@ const MainAppContent: React.FC = () => {
     setActiveTab(prev => (prev === 'profile' ? 'profile' : 'home'));
   }, [currentUser?.role, currentUser?.uid]);
 
+  if (showSplash) {
+    return <SplashScreen onFinish={dismissSplash} />;
+  }
+
   if (isLoading) {
-    return <SplashScreen onFinish={() => {}} />;
+    return (
+      <div className="min-h-screen bg-[#F7F7F7] flex flex-col items-center justify-center p-6">
+        <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#FF6B00] to-[#FF8A1F] flex items-center justify-center text-white shadow-lg shadow-orange-500/25 mb-4 animate-pulse">
+          <Bus className="w-7 h-7" />
+        </div>
+        <div className="flex items-center gap-2 text-xs font-bold text-neutral-600">
+          <span className="w-2 h-2 rounded-full bg-[#FF6B00] animate-ping" />
+          Verifying authenticated session...
+        </div>
+      </div>
+    );
+  }
+
+  // Fail closed: Authorization error screen
+  if (authError) {
+    return (
+      <div className="min-h-screen bg-[#F7F7F7] flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-16 h-16 rounded-3xl bg-rose-100 text-rose-600 flex items-center justify-center mb-4">
+          <ShieldAlert className="w-8 h-8" />
+        </div>
+        <h2 className="text-xl font-extrabold text-[#171717] mb-2">Access Authorization Error</h2>
+        <p className="text-xs text-neutral-600 max-w-sm mb-6 leading-relaxed">
+          {authError}
+        </p>
+        <button
+          onClick={logout}
+          className="px-5 py-2.5 rounded-2xl bg-[#FF6B00] hover:bg-[#E55F00] text-white text-xs font-bold shadow-md shadow-orange-500/20 cursor-pointer"
+        >
+          Return to Sign In
+        </button>
+      </div>
+    );
   }
 
   // Not logged in -> Show Login or SignUp
@@ -131,10 +168,12 @@ const MainAppContent: React.FC = () => {
       <Header
         onOpenNotifications={() => setShowNotificationModal(true)}
         onOpenProfile={() => setActiveTab('profile')}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 w-full max-w-6xl mx-auto px-2 sm:px-4 md:px-6 overflow-x-hidden">
+      <main className="flex-1 w-full max-w-5xl lg:max-w-6xl xl:max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 xl:px-10 overflow-x-hidden transition-all">
         {renderRoleScreen()}
       </main>
 

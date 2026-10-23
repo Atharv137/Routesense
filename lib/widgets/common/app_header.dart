@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/dashboard_provider.dart';
+import 'ai_copilot_dialog.dart';
 import 'notification_dialog.dart';
 
 class AppHeader extends StatelessWidget implements PreferredSizeWidget {
@@ -94,11 +95,9 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
                 size: 20,
               ),
               onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Opening RouteSense AI Copilot...'),
-                    duration: Duration(seconds: 1),
-                  ),
+                showDialog(
+                  context: context,
+                  builder: (_) => const AiCopilotDialog(),
                 );
               },
             ),

@@ -2,13 +2,30 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper functions for Role-Based Access Control (RBAC)
-    function isAuthenticated() {
+    // Global Safety Net (Default-Deny Catch-All)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Hardened Helper Functions
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
       return request.auth != null;
     }
 
     function isOwner(userId) {
-      return isAuthenticated() && request.auth.uid == userId;
+      return isSignedIn() && request.auth.uid == userId;
     }
 
     function getUserData() {
@@ -16,96 +33,148 @@ service cloud.firestore {
     }
 
     function isOpsManagerOrAdmin() {
-      return isAuthenticated() && (
+      return isSignedIn() && (
         !exists(/databases/$(database)/documents/users/$(request.auth.uid)) ||
-        getUserData().role == 'operations_manager' ||
-        getUserData().role == 'admin'
+        getUserData().role in ['operations_manager', 'admin']
       );
     }
 
     function isConductor() {
-      return isAuthenticated() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && getUserData().role == 'conductor';
+      return isSignedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && getUserData().role == 'conductor';
     }
 
     function isDriver() {
-      return isAuthenticated() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && getUserData().role == 'driver';
+      return isSignedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && getUserData().role == 'driver';
     }
 
-    function isPassenger() {
-      return isAuthenticated() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && getUserData().role == 'passenger';
+    // Validation Helper: Users
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email', 'name', 'role']) &&
+        data.uid is string && data.uid.size() <= 128 &&
+        data.email is string && data.email.size() <= 256 &&
+        data.name is string && data.name.size() <= 128 &&
+        data.role in ['passenger', 'conductor', 'driver', 'operations_manager', 'admin'];
     }
 
-    // 1. Users collection: users can read their own or ops manager can read all; self profile edit
+    // Validation Helper: Tickets
+    function isValidTicket(data) {
+      return data.keys().hasAll(['ticketId', 'routeId', 'fromStop', 'toStop', 'totalFare']) &&
+        data.ticketId is string && data.ticketId.size() <= 64 &&
+        data.routeId is string && data.routeId.size() <= 64 &&
+        data.fromStop is string && data.fromStop.size() <= 128 &&
+        data.toStop is string && data.toStop.size() <= 128 &&
+        data.totalFare is number && data.totalFare >= 0;
+    }
+
+    // Validation Helper: Incidents
+    function isValidIncident(data) {
+      return data.keys().hasAll(['incidentId', 'type', 'severity', 'status', 'timestamp']) &&
+        data.incidentId is string && data.incidentId.size() <= 64 &&
+        data.type in ['delay', 'breakdown', 'obstruction'] &&
+        data.severity in ['low', 'medium', 'high', 'critical'] &&
+        data.status in ['open', 'in_review', 'resolved'];
+    }
+
+    // Validation Helper: Chat Messages
+    function isValidChatMessage(data) {
+      return data.keys().hasAll(['id', 'userId', 'role', 'content', 'timestamp']) &&
+        data.id is string && data.id.size() <= 64 &&
+        data.userId is string && data.userId.size() <= 128 &&
+        data.role in ['user', 'model', 'system'] &&
+        data.content is string && data.content.size() <= 8192;
+    }
+
+    // 0. Connection probe endpoint for client boot validation
+    match /test/{testId} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    // 1. Users collection: strictly owner or operations manager
     match /users/{userId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated() && request.auth.uid == userId;
-      allow update: if isOwner(userId) || isOpsManagerOrAdmin();
+      allow read: if isOwner(userId) || isOpsManagerOrAdmin();
+      allow create: if isOwner(userId) && isValidId(userId) && isValidUser(incoming()) && (
+        incoming().role == 'passenger' || isOpsManagerOrAdmin()
+      );
+      allow update: if (
+        (isOwner(userId) && incoming().uid == existing().uid && incoming().role == existing().role && (
+          (!('status' in existing()) || incoming().status == existing().status) &&
+          (!('staffId' in existing()) || incoming().staffId == existing().staffId) &&
+          (!('employeeId' in existing()) || incoming().employeeId == existing().employeeId)
+        ) && isValidUser(incoming())) ||
+        isOpsManagerOrAdmin()
+      );
       allow delete: if isOpsManagerOrAdmin();
     }
 
-    // 2. Bus routes: publicly readable by authenticated users; editable by Ops Manager/Admin
+    // 2. Bus routes: publicly readable by passengers and crew; manageable by operations
     match /routes/{routeId} {
       allow read: if true;
-      allow write: if isAuthenticated();
+      allow write: if isOpsManagerOrAdmin();
     }
 
-    // 3. Buses collection: readable by all auth users; updated by driver/conductor assigned or ops
+    // 3. Buses collection: publicly readable for real-time tracking
     match /buses/{busId} {
       allow read: if true;
-      allow create, delete: if isAuthenticated();
-      allow update: if isAuthenticated();
+      allow create, delete: if isOpsManagerOrAdmin();
+      allow update: if isSignedIn();
     }
 
-    // 4. Trips collection: readable by all auth users; manageable by crew or ops
+    // 4. Trips collection: publicly readable for transit status
     match /trips/{tripId} {
       allow read: if true;
-      allow create, update: if isAuthenticated();
-      allow delete: if isAuthenticated();
+      allow create, update: if isSignedIn();
+      allow delete: if isOpsManagerOrAdmin();
     }
 
-    // 5. Digital QR Tickets: passenger can read their own tickets; conductor and ops can read and create
+    // 5. Digital QR Tickets: passenger reads their own; crew and ops can verify
     match /tickets/{ticketId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update, delete: if isAuthenticated();
+      allow read: if isSignedIn() && (
+        !('passengerId' in resource.data) ||
+        resource.data.passengerId == request.auth.uid ||
+        isConductor() ||
+        isOpsManagerOrAdmin()
+      );
+      allow create: if isSignedIn() && isValidId(ticketId) && isValidTicket(incoming());
+      allow update: if isSignedIn() && (isConductor() || isOpsManagerOrAdmin());
+      allow delete: if isOpsManagerOrAdmin();
     }
 
-    // 6. Incidents: readable by all; drivers & ops can create; ops manager can resolve/update
+    // 6. Incidents: readable by all transit stakeholders; authenticated crew/ops can file
     match /incidents/{incidentId} {
       allow read: if true;
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isAuthenticated();
+      allow create: if isSignedIn() && isValidId(incidentId) && isValidIncident(incoming());
+      allow update: if isSignedIn();
+      allow delete: if isOpsManagerOrAdmin();
     }
 
-    // 7. Notifications: readable and manageable by authenticated users
+    // 7. Notifications: authenticated users
     match /notifications/{notifId} {
-      allow read, write: if isAuthenticated();
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
     }
 
     // 8. Reconciliations & Shifts
     match /shifts/{shiftId} {
-      allow read, write: if isAuthenticated();
+      allow read, write: if isSignedIn();
     }
 
-    match /reconciliations/{recId} {
-      allow read, write: if isAuthenticated();
-    }
-
-    // 9. Recurring Issues & Smart Insights
+    // 9. Recurring Issues & Smart Insights: readable by all stakeholders
     match /recurring_issues/{issueId} {
       allow read: if true;
-      allow write: if isAuthenticated();
+      allow write: if isSignedIn();
     }
 
     match /smart_insights/{insightId} {
       allow read: if true;
-      allow write: if isAuthenticated();
+      allow write: if isSignedIn();
     }
 
-    // 10. Gemini Chat History
+    // 10. Gemini Transit Copilot Chat History: strictly user-scoped
     match /chat_messages/{messageId} {
-      allow read, write: if isAuthenticated();
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid && isValidChatMessage(incoming());
+      allow update, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
     }
   }
 }

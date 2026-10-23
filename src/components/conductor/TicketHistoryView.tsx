@@ -37,7 +37,7 @@ export const TicketHistoryView: React.FC<TicketHistoryViewProps> = ({ onBack, on
   );
 
   return (
-    <div className="p-4 sm:p-6 space-y-6 max-w-2xl mx-auto pb-24 animate-in fade-in duration-200">
+    <div className="p-4 sm:p-6 md:p-8 space-y-6 md:space-y-8 w-full max-w-5xl lg:max-w-6xl xl:max-w-7xl mx-auto pb-24 md:pb-12 animate-in fade-in duration-200">
       {/* Top bar */}
       <div className="flex items-center justify-between">
         <button

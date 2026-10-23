@@ -61,7 +61,7 @@ function setStored<T>(key: string, value: T): void {
 export class RouteSenseStorage {
   // Initialization
   static init() {
-    if (!localStorage.getItem(STORAGE_KEYS.USERS)) {
+    if (import.meta.env.VITE_DEMO_MODE === 'true' && !localStorage.getItem(STORAGE_KEYS.USERS)) {
       setStored(STORAGE_KEYS.USERS, INITIAL_USERS);
     }
     if (!localStorage.getItem(STORAGE_KEYS.ROUTES)) {
@@ -88,9 +88,9 @@ export class RouteSenseStorage {
     if (!localStorage.getItem(STORAGE_KEYS.SMART_INSIGHTS)) {
       setStored(STORAGE_KEYS.SMART_INSIGHTS, INITIAL_SMART_INSIGHTS);
     }
+    // Never auto-populate a default authenticated user in production
     if (!localStorage.getItem(STORAGE_KEYS.CURRENT_USER)) {
-      // Default to Conductor Anita as in PRD
-      setStored(STORAGE_KEYS.CURRENT_USER, INITIAL_USERS[0]);
+      setStored(STORAGE_KEYS.CURRENT_USER, null);
     }
 
     // Attempt background initial seed into Firestore if empty
@@ -114,11 +114,12 @@ export class RouteSenseStorage {
 
   // Users & Auth
   static getUsers(): User[] {
-    return getStored<User[]>(STORAGE_KEYS.USERS, INITIAL_USERS);
+    const defaultList = import.meta.env.VITE_DEMO_MODE === 'true' ? INITIAL_USERS : [];
+    return getStored<User[]>(STORAGE_KEYS.USERS, defaultList);
   }
 
   static getCurrentUser(): User | null {
-    return getStored<User | null>(STORAGE_KEYS.CURRENT_USER, INITIAL_USERS[0]);
+    return getStored<User | null>(STORAGE_KEYS.CURRENT_USER, null);
   }
 
   static setCurrentUser(user: User | null): void {

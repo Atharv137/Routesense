@@ -9,9 +9,14 @@ export interface User {
   routeAssigned?: string;
   busAssigned?: string;
   profilePhoto?: string;
-  createdAt: string;
   employeeId?: string;
+  staffId?: string;
+  createdAt: string;
   shiftStatus?: 'on_duty' | 'off_duty' | 'on_break';
+  status?: 'active' | 'suspended' | 'disabled' | 'pending';
+  assignedRoute?: string;
+  emailVerified?: boolean;
+  updatedAt?: string;
 }
 
 export interface Stop {

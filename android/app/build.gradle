@@ -21,7 +21,7 @@ android {
 
     defaultConfig {
         applicationId = "com.routesense.fleet.routesense"
-        minSdk = 23
+        minSdk = 21
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
@@ -49,18 +49,8 @@ android {
 
     buildTypes {
         release {
-            def keystorePropertiesFile = rootProject.file('key.properties')
-            if (keystorePropertiesFile.exists()) {
-                signingConfig = signingConfigs.release
-            } else {
-                signingConfig = signingConfigs.debug
-            }
+            signingConfig = signingConfigs.release
         }
-    }
-
-    lint {
-        checkReleaseBuilds false
-        abortOnError false
     }
 }
 

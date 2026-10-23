@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../providers/bus_provider.dart';
-import '../../providers/incident_provider.dart';
 import '../../providers/route_provider.dart';
 import '../../providers/ticket_provider.dart';
 
@@ -17,7 +16,6 @@ class AnalyticsScreen extends StatelessWidget {
     final ticketProv = Provider.of<TicketProvider>(context);
     final busProv = Provider.of<BusProvider>(context);
     final routeProv = Provider.of<RouteProvider>(context);
-    final incidentProv = Provider.of<IncidentProvider>(context);
 
     final tickets = ticketProv.tickets;
     final totalRev = tickets.fold<double>(0.0, (sum, t) => sum + t.totalFare);
@@ -164,7 +162,7 @@ class AnalyticsScreen extends StatelessWidget {
                       ],
                     ),
                   );
-                }).toList(),
+                }),
               ],
             ),
           ),
